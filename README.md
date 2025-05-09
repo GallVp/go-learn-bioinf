@@ -4,17 +4,17 @@ A personal project to learn _Go_ and bioinf in one go.
 
 ## Build and Test
 
-> [!TIP] Build
+> 🛠️ Build
 ```bash
 go build
 ```
 
-> [!TIP] Test
+> 🚀 Test
 ```bash
 go test ./...
 ```
 
-> [!TIP] Coverage
+> 🎯 Coverage
 ```
 go tool cover data/coverage.out
 go tool cover -html=data/coverage.out
