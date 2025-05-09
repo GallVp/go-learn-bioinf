@@ -21,6 +21,8 @@ func readSequenceFromFile(filePath string) (string, error) {
 
 	var builder strings.Builder
 	scanner := bufio.NewScanner(file)
+	buf := make([]byte, 0, 100_000)
+	scanner.Buffer(buf, 100_000)
 	for scanner.Scan() {
 		line := scanner.Text()
 		builder.WriteString(strings.TrimSpace(line))

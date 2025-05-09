@@ -12,10 +12,13 @@ func main() {
 
 	var rootCmd = &cobra.Command{Use: "glb"}
 
-	rootCmd.PersistentFlags().BoolP("verbose", "v", false, "Enable verbose logging")
+	rootCmd.PersistentFlags().BoolP("verbose", "V", false, "Enable verbose logging")
 
 	primitives.InitSkewCmd()
 	rootCmd.AddCommand(primitives.SkewCmd)
+
+	primitives.InitFindICmd()
+	rootCmd.AddCommand(primitives.FindICmd)
 
 	log.SetLevel(log.ErrorLevel)
 
