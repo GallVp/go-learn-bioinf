@@ -20,6 +20,9 @@ func main() {
 	primitives.InitFindICmd()
 	rootCmd.AddCommand(primitives.FindICmd)
 
+	primitives.InitMismatchCmd()
+	rootCmd.AddCommand(primitives.MismatchCmd)
+
 	log.SetLevel(log.ErrorLevel)
 
 	if err := rootCmd.Execute(); err != nil {
