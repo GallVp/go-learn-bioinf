@@ -79,18 +79,17 @@ func findICmdMain(cmd *cobra.Command, args []string) {
 		return strconv.Itoa(i)
 	}).([]string), " ")
 
-	fmt.Println(outputStr)
+	fmt.Fprintln(cmd.OutOrStdout(), outputStr)
 }
 
-var FindICmd = &cobra.Command{
-	Use:   "findi [<integers as a string> | <stdin>]",
-	Short: "Find the indices of the minimum value in a list of integers",
-	Run: func(cmd *cobra.Command, args []string) {
-		findICmdMain(cmd, args)
-	},
-	Args:    cobra.MaximumNArgs(1),
-	Example: "findi \"4 -2 3\"",
-}
-
-func InitFindICmd() {
+func NewFindICmd() *cobra.Command {
+	return &cobra.Command{
+		Use:   "findi [<integers as a string> | <stdin>]",
+		Short: "Find the indices of the minimum value in a list of integers",
+		Run: func(cmd *cobra.Command, args []string) {
+			findICmdMain(cmd, args)
+		},
+		Args:    cobra.MaximumNArgs(1),
+		Example: "findi \"4 -2 3\"",
+	}
 }

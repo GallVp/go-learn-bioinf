@@ -30,20 +30,20 @@ func BaseWiseMatch(
 	}).([]bool), nil
 }
 
-func AllApproxMatches(seq1, seq2 string, maxMismatches int) []int {
+func AllApproxMatches(seq1, seq2 string, maxMismatches int) ([]int, error) {
 
 	if maxMismatches < 0 {
-		log.Fatal("maxMismatches should be >= 0")
+		fmt.Errorf("maxMismatches should be >= 0")
 	}
 
 	if len(seq2) > len(seq1) {
-		log.Fatal("Seq2 should be equal or shorter than seq1 in length")
+		fmt.Errorf("seq2 should be equal or shorter than seq1 in length")
 	}
 
 	if len(seq1) == len(seq2) {
 		mismatches, _ := NumberOfMismatches(seq1, seq2)
 		if mismatches <= maxMismatches {
-			return []int{0}
+			return []int{0}, nil
 		}
 	}
 
@@ -59,7 +59,7 @@ func AllApproxMatches(seq1, seq2 string, maxMismatches int) []int {
 		}
 
 		return []int{}
-	}).([]int)
+	}).([]int), nil
 }
 
 func NumberOfMatches(seq1, seq2 string) (int, error) {
@@ -113,16 +113,17 @@ func NumberOfMismatchesM(matches []bool) int {
 
 }
 
-func PrintMismatch(seq1, seq2 string, noPrint bool) error {
+func printMismatchCmdImpl(cmd *cobra.Command, seq1, seq2 string, noPrint bool) error {
 
 	matches, err := BaseWiseMatch(seq1, seq2)
+
 	if err != nil {
 		return err
 	}
 
 	numMismatches := NumberOfMismatchesM(matches)
 
-	fmt.Printf("Number of mismatches: %d (%.2f%%)\n", numMismatches, float64(numMismatches)/float64(len(seq1))*100.0)
+	fmt.Fprintf(cmd.OutOrStdout(), "Number of mismatches: %d (%.2f%%)\n", numMismatches, float64(numMismatches)/float64(len(seq1))*100.0)
 
 	if noPrint {
 		return nil
@@ -157,7 +158,6 @@ func printMismatchMainCmd(cmd *cobra.Command, args []string) {
 
 	verbose, _ := cmd.Root().PersistentFlags().GetBool("verbose")
 	noPrint, _ := cmd.Flags().GetBool("no-print")
-	allowLenDiff, _ := cmd.Flags().GetBool("allow-len-diff")
 
 	// Set up logger
 	log.SetLevel(log.ErrorLevel)
@@ -168,25 +168,22 @@ func printMismatchMainCmd(cmd *cobra.Command, args []string) {
 	}
 
 	seq1, seq2 := args[0], args[1]
+	err := printMismatchCmdImpl(cmd, seq1, seq2, noPrint)
 
-	if len(seq1) != len(seq2) && !allowLenDiff {
-		log.Fatal("Sequences are not of equal length")
+	log.Fatal(err)
+}
+
+func NewMismatchCmd() *cobra.Command {
+	mismatchCmd := &cobra.Command{
+		Use:   "mismatch <seq1> <seq2>",
+		Short: "Find the mismatches between two sequences",
+		Run: func(cmd *cobra.Command, args []string) {
+			printMismatchMainCmd(cmd, args)
+		},
+		Args:    cobra.ExactArgs(2),
+		Example: "mismatch GGGCCGTTGGT GGACCGTTGAC",
 	}
+	mismatchCmd.Flags().BoolP("no-print", "P", false, "Do not print the mismatches")
 
-	PrintMismatch(seq1, seq2, noPrint)
-}
-
-var MismatchCmd = &cobra.Command{
-	Use:   "mismatch <seq1> <seq2>",
-	Short: "Find the mismatches between two sequences",
-	Run: func(cmd *cobra.Command, args []string) {
-		printMismatchMainCmd(cmd, args)
-	},
-	Args:    cobra.ExactArgs(2),
-	Example: "mismatch GGGCCGTTGGT GGACCGTTGAC",
-}
-
-func InitMismatchCmd() {
-	MismatchCmd.Flags().BoolP("no-print", "P", false, "Do not print the mismatches")
-	MismatchCmd.Flags().BoolP("allow-len-diff", "l", false, "Allow length differences. The shorter sequence is matched at each base of the longer sequence")
+	return mismatchCmd
 }
