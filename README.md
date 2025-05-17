@@ -18,6 +18,6 @@ go test ./...
 
 > 🎯 Coverage
 ```
-go tool cover data/coverage.out
+go test ./... -coverprofile=data/coverage.out
 go tool cover -html=data/coverage.out
 ```

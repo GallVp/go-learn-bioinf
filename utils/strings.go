@@ -1,5 +1,7 @@
 package utils
 
+// Bin a string into 'x' slices of length 'n' except the last one
+// which contains the remaining runes
 func SplitByRunes(s string, n int) []string {
 	r := []rune(s)
 	var chunks []string

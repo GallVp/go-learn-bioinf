@@ -14,8 +14,7 @@ func main() {
 
 	rootCmd.PersistentFlags().BoolP("verbose", "V", false, "Enable verbose logging")
 
-	primitives.InitSkewCmd()
-	rootCmd.AddCommand(primitives.SkewCmd)
+	rootCmd.AddCommand(primitives.NewSkewCmd())
 
 	primitives.InitFindICmd()
 	rootCmd.AddCommand(primitives.FindICmd)

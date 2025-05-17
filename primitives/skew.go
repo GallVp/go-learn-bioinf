@@ -97,19 +97,20 @@ func skewCmdMain(cmd *cobra.Command) {
 	skews := computeGCskew(sequence)
 
 	for _, val := range skews {
-		fmt.Printf("%d\n", val)
+		fmt.Fprintf(cmd.OutOrStdout(), "%d\n", val)
 	}
 }
 
-var SkewCmd = &cobra.Command{
-	Use:   "skew [-s <sequence> | -f <file>]",
-	Short: "Find the skew of a sequence",
-	Run: func(cmd *cobra.Command, args []string) {
-		skewCmdMain(cmd)
-	},
-}
+func NewSkewCmd() *cobra.Command {
+	skewCmd := &cobra.Command{
+		Use:   "skew [-s <sequence> | -f <file>]",
+		Short: "Find the skew of a sequence",
+		Run: func(cmd *cobra.Command, args []string) {
+			skewCmdMain(cmd)
+		},
+	}
+	skewCmd.Flags().StringP("sequence", "s", "", "DNA sequence string")
+	skewCmd.Flags().StringP("file", "f", "", "File path containing DNA sequence")
 
-func InitSkewCmd() {
-	SkewCmd.Flags().StringP("sequence", "s", "", "DNA sequence string")
-	SkewCmd.Flags().StringP("file", "f", "", "File path containing DNA sequence")
+	return skewCmd
 }
