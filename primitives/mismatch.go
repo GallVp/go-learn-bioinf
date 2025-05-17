@@ -19,7 +19,7 @@ func BaseWiseMatch(
 	seq1, seq2 string,
 ) ([]bool, error) {
 	if len(seq1) != len(seq2) {
-		return nil, fmt.Errorf("Sequences are not of equal length")
+		return nil, fmt.Errorf("sequences are not of equal length")
 	}
 
 	seq1Chars := strings.Split(seq1, "")
@@ -28,6 +28,38 @@ func BaseWiseMatch(
 	return funk.Map(funk.Zip(seq1Chars, seq2Chars), func(pair funk.Tuple) bool {
 		return strings.EqualFold(pair.Element1.(string), pair.Element2.(string))
 	}).([]bool), nil
+}
+
+func AllApproxMatches(seq1, seq2 string, maxMismatches int) []int {
+
+	if maxMismatches < 0 {
+		log.Fatal("maxMismatches should be >= 0")
+	}
+
+	if len(seq2) > len(seq1) {
+		log.Fatal("Seq2 should be equal or shorter than seq1 in length")
+	}
+
+	if len(seq1) == len(seq2) {
+		mismatches, _ := NumberOfMismatches(seq1, seq2)
+		if mismatches <= maxMismatches {
+			return []int{0}
+		}
+	}
+
+	seq1Chunks := utils.StringSlidingSlices(seq1, len(seq2))
+
+	return funk.FlatMap(utils.StringsWithIndices(seq1Chunks), func(tuple funk.Tuple) []int {
+		seq := tuple.Element1.(string)
+		i := tuple.Element2.(int)
+		miss, _ := NumberOfMismatches(seq, seq2)
+
+		if miss <= maxMismatches {
+			return []int{0 + i}
+		}
+
+		return []int{}
+	}).([]int)
 }
 
 func NumberOfMatches(seq1, seq2 string) (int, error) {
@@ -81,10 +113,6 @@ func NumberOfMismatchesM(matches []bool) int {
 
 }
 
-func hamming(seq1 string, seq2 string) (int, error) {
-	return NumberOfMismatches(seq1, seq2)
-}
-
 func PrintMismatch(seq1, seq2 string, noPrint bool) error {
 
 	matches, err := BaseWiseMatch(seq1, seq2)
@@ -100,8 +128,8 @@ func PrintMismatch(seq1, seq2 string, noPrint bool) error {
 		return nil
 	}
 
-	seq1Chunks := utils.SplitByRunes(seq1, maxCharsPerLine)
-	seq2Chunks := utils.SplitByRunes(seq2, maxCharsPerLine)
+	seq1Chunks := utils.StringBins(seq1, maxCharsPerLine)
+	seq2Chunks := utils.StringBins(seq2, maxCharsPerLine)
 
 	// fmt.Println(seq1)
 	matchesAsString := strings.Join(funk.Map(matches, func(match bool) string {
@@ -112,7 +140,7 @@ func PrintMismatch(seq1, seq2 string, noPrint bool) error {
 		}
 	}).([]string), "")
 
-	matchesChunks := utils.SplitByRunes(matchesAsString, maxCharsPerLine)
+	matchesChunks := utils.StringBins(matchesAsString, maxCharsPerLine)
 
 	funk.ForEach(funk.Zip(funk.Zip(seq1Chunks, seq2Chunks), matchesChunks), func(pair funk.Tuple) {
 		seq1Chunk := pair.Element1.(funk.Tuple).Element1.(string)
